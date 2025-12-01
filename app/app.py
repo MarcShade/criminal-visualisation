@@ -1,21 +1,39 @@
 import tkinter as tk
+from tkinter import ttk
 from tkinter import *
-from tkinter import messagebox
+from  matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
-class App:
+from visualisations import Plot
+
+class App(tk.Tk):
     def __init__(self):
+        super().__init__()
         self.open_apps = {}
 
-        self.root = Tk()
-        self.root.resizable(0, 0)
-        self.root.title("Criminality Visualisation")
+        self.geometry('1500x1500')
+        self.resizable(0, 0)
+        self.title("Criminality Visualisation")
 
-        self.button_frame = tk.Frame(self.root, width=1000, height=800)
+        self.plot_frame = ttk.Frame(self)
+        self.plot_frame.pack(fill="both", expand=True)
 
-        for btn in self.button_frame.winfo_children():
-            btn.pack(pady=5, fill=X)
 
-        for frame in self.root.winfo_children():
-            frame.pack(padx=45, pady=30)
+        self.show_plot()
+        self.mainloop()
 
-        self.root.mainloop()
+
+    def show_plot(self):
+        for widget in self.plot_frame.winfo_children():
+            widget.destroy()
+
+        # fig = Plot.make_example_plot("Age")
+        fig = Plot.make_histogram("")
+
+        canvas = FigureCanvasTkAgg(fig, master=self.plot_frame)
+        canvas.draw()
+
+        canvas.get_tk_widget().pack(fill="both", expand=True)
+
+        toolbar = NavigationToolbar2Tk(canvas, self.plot_frame)
+        toolbar.update()
+        toolbar.pack()
