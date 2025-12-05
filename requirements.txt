@@ -1,0 +1,2 @@
+matplotlib==3.10.7
+curl_cffi=0.13.0
