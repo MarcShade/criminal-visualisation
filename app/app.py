@@ -10,7 +10,7 @@ class App(tk.Tk):
         super().__init__()
         self.open_apps = {}
 
-        self.geometry('1500x1500')
+        self.geometry('1000x1000')
         self.resizable(0, 0)
         self.title("Criminality Visualisation")
 
