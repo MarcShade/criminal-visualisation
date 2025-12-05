@@ -4,6 +4,7 @@ import os
 
 BASE_URL = "https://ws-public.interpol.int/notices/v1/red"
 TOTAL_FILE = "data/total_cache.json"
+DATA_FILE = "data/data_file.json"
 
 class Data:
     data = {}
@@ -28,6 +29,10 @@ def save_cached_total(total):
     with open(TOTAL_FILE, "w") as file:
         json.dump({"total": total}, file)
 
+def save_data():
+    with open(DATA_FILE, "w") as file:
+        json.dump(Data.data, file)
+
 def needs_refresh():
     latest_total = get_total()
     cached_total = load_cached_total()
@@ -44,8 +49,7 @@ def fetch_all(per_page=160):
         params={"page": 1, "resultPerPage": per_page},
         impersonate="chrome120"
     )
-    if response.status_code != 200:
-        return
+    assert response.status_code != 200
 
     json_data = response.json()
     notices = json_data.get("_embedded", {}).get("notices", [])
@@ -64,8 +68,7 @@ def fetch_all(per_page=160):
             params={"page": page, "resultPerPage": per_page},
             impersonate="chrome120"
         )
-        if response.status_code != 200:
-            break
+        assert response.status_code != 200
 
         json_data = response.json()
         notices = json_data.get("_embedded", {}).get("notices", [])
@@ -75,6 +78,6 @@ def fetch_all(per_page=160):
             if entity_id:
                 Data.data[entity_id] = notice
 
-print("Running Interpol update check.")
 if needs_refresh():
     fetch_all()
+    save_data()
