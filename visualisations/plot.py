@@ -1,6 +1,18 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+import json
+from pprint import pprint
+
+d = {}
+
+def unwrap(keyword):
+    global d
+    with open("api_client/data_file.json") as json_data:
+        d = json.loads(json_data.read())
+        json_data.close()
+        pprint(d.get("total"))
+
 class Plot():
     def make_example_plot(x_axis_title = "undefined"):
         fig, ax = plt.subplots()
@@ -11,8 +23,10 @@ class Plot():
         return fig
     
     def make_histogram(x_axis_title = "undefined"):
+        unwrap("")
         x = np.random.normal(170, 10, 250)
-
+        x = [29, 29, 29, 30, 30, 31, 32]
+        # ages = unwrap("ages")
         fig, ax = plt.subplots()
         ax.hist(x)
         ax.set_title("Histogram")
