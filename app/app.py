@@ -4,6 +4,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 
 from visualisations import Plot
 
+
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -50,6 +51,53 @@ class App(tk.Tk):
         self.plot_frame = ttk.Frame(self)
         self.plot_frame.pack(fill="both", expand=True)
 
+        self.bottom_bar = tk.Frame(self, bg="#2b2b2b", height=80)
+        self.bottom_bar.pack_propagate(False)
+
+        self.hist_option = tk.StringVar(value="Weight")
+
+        self.hist_dropdown_btn = tk.Button(
+            self.bottom_bar,
+            textvariable=self.hist_option,
+            font=("Segoe UI", 11, "bold"),
+            bg="#3c3f41",
+            fg="white",
+            activebackground="#4b6eaf",
+            activeforeground="white",
+            relief="flat",
+            bd=0,
+            width=16,
+            height=2,
+            command=self.show_hist_menu
+        )
+        self.hist_dropdown_btn.pack(pady=20)
+
+        self.hist_menu = tk.Menu(
+            self,
+            tearoff=0,
+            bg="#3c3f41",
+            fg="white",
+            activebackground="#4b6eaf",
+            activeforeground="white",
+            bd=0,
+            font=("Segoe UI", 11)
+        )
+
+        for option in [
+            "Weight",
+            "Nationality",
+            "Sex",
+            "Country of Birth",
+            "Languages Spoken",
+            "Height",
+            "Eye color"
+        ]:
+            self.hist_menu.add_command(
+                label=option,
+                command=lambda v=option: self.set_hist_option(v)
+            )
+
+
         self.show_histogram()
         self.mainloop()
 
@@ -59,8 +107,11 @@ class App(tk.Tk):
 
     def show_histogram(self):
         self.clear_plot()
+        self.bottom_bar.pack(side="bottom", fill="x")
+
         plot = Plot()
-        fig = plot.make_histogram("weight")
+        selected = self.hist_option.get()
+        fig = plot.make_histogram(selected)
 
         canvas = FigureCanvasTkAgg(fig, master=self.plot_frame)
         canvas.draw()
@@ -68,9 +119,21 @@ class App(tk.Tk):
 
     def show_world(self):
         self.clear_plot()
+        self.bottom_bar.pack_forget()
+
         label = ttk.Label(
             self.plot_frame,
             text="WORLD GRAPH GOES HERE",
             font=("Segoe UI", 18)
         )
         label.pack(expand=True)
+
+    def show_hist_menu(self):
+        x = self.hist_dropdown_btn.winfo_rootx()
+        y = self.hist_dropdown_btn.winfo_rooty() + self.hist_dropdown_btn.winfo_height()
+        self.hist_menu.tk_popup(x, y)
+
+    def set_hist_option(self, value):
+        self.hist_option.set(value)
+        self.show_histogram()
+
