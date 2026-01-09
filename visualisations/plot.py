@@ -1,10 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from api_client.api_client import Data
+from api import Data
 from pprint import pprint
-
-d = {}
 
 # def unwrap(keyword):
 #     global d
@@ -13,14 +11,11 @@ d = {}
 #         json_data.close()
 #         pprint(d.get("total"))
 
-
 def smart_add(lst, x):
     if isinstance(x, (list, tuple)):  # check if iterable
         lst.extend(x)
     else:
         lst.append(x)
-
-data = {}
 
 class Plot():
     def __init__(self):

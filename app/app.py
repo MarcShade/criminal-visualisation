@@ -4,7 +4,6 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 
 from visualisations import Plot
 
-
 class App(tk.Tk):
     def __init__(self):
         super().__init__()

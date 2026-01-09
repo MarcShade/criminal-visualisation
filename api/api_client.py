@@ -5,9 +5,9 @@ import pprint
 
 class Data:
     _data = None
-    DATA_FILE = "api_client/data_file.json"
+    DATA_FILE = "api/data_file.json"
     BASE_URL = "https://ws-public.interpol.int/notices/v1/red"
-    TOTAL_FILE = "api_client/total_cache.json"
+    TOTAL_FILE = "api/total_cache.json"
 
     @classmethod
     def get_data(cls):
