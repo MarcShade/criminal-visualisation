@@ -27,7 +27,8 @@ class App(tk.Tk):
             widget.destroy()
 
         # fig = Plot.make_example_plot("Age")
-        fig = Plot.make_histogram("")
+        plot = Plot()
+        fig = plot.make_histogram("weight")
 
         canvas = FigureCanvasTkAgg(fig, master=self.plot_frame)
         canvas.draw()

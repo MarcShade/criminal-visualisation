@@ -3,104 +3,118 @@ import json
 import os
 import pprint
 
-BASE_URL = "https://ws-public.interpol.int/notices/v1/red"
-TOTAL_FILE = "api_client/total_cache.json"
-DATA_FILE = "api_client/data_file.json"
+
 
 class Data:
-    data = []
+    _data = None
+    DATA_FILE = "api_client/data_file.json"
+    BASE_URL = "https://ws-public.interpol.int/notices/v1/red"
+    TOTAL_FILE = "api_client/total_cache.json"
 
-def get_total():
-    response = requests.get(
-        BASE_URL,
-        params={"page": 1, "resultPerPage": 1},
-        impersonate="chrome120"
-    )
-    if response.status_code != 200:
-        return None
-    return response.json().get("total")
+    @classmethod
+    def get_data(cls):
+        if cls._data is None:
+            try:
+                with open(cls.DATA_FILE, "r", encoding="utf-8") as f:
+                    cls._data = json.load(f)
+            except (FileNotFoundError, json.JSONDecodeError):
+                cls._data = {}
+                with open(cls.DATA_FILE, "w", encoding="utf-8") as f:
+                    json.dump(cls._data, f)
 
-def load_cached_total():
-    if not os.path.exists(TOTAL_FILE):
-        return None
-    with open(TOTAL_FILE, "r") as f:
-        return json.load(f).get("total")
+        return cls._data
 
-def save_cached_total(total):
-    with open(TOTAL_FILE, "w") as f:
-        json.dump({"total": total}, f)
+# def get_total():
+#     response = requests.get(
+#         BASE_URL,
+#         params={"page": 1, "resultPerPage": 1},
+#         impersonate="chrome120"
+#     )
+#     if response.status_code != 200:
+#         return None
+#     return response.json().get("total")
 
-def save_data():
-    with open(DATA_FILE, "w") as f:
-        json.dump(Data.data, f, indent=2)
+# def load_cached_total():
+#     if not os.path.exists(TOTAL_FILE):
+#         return None
+#     with open(TOTAL_FILE, "r") as f:
+#         return json.load(f).get("total")
 
-def needs_refresh():
-    latest_total = get_total()
-    cached_total = load_cached_total()
+# def save_cached_total(total):
+#     with open(TOTAL_FILE, "w") as f:
+#         json.dump({"total": total}, f)
 
-    if latest_total is None:
-        return False
+# def save_data():
+#     with open(DATA_FILE, "w") as f:
+#         json.dump(Data.data, f, indent=2)
 
-    if cached_total != latest_total:
-        save_cached_total(latest_total)
-        return True
+# def needs_refresh():
+#     latest_total = get_total()
+#     cached_total = load_cached_total()
 
-    return False
+#     if latest_total is None:
+#         return False
 
-def fetch_all_notices(per_page=160):
-    notices = []
+#     if cached_total != latest_total:
+#         save_cached_total(latest_total)
+#         return True
 
-    response = requests.get(
-        BASE_URL,
-        params={"page": 1, "resultPerPage": per_page},
-        impersonate="chrome120"
-    )
-    if response.status_code != 200:
-        raise RuntimeError("Cannot fetch first page")
+#     return False
 
-    json_data = response.json()
-    notices.extend(json_data.get("_embedded", {}).get("notices", []))
-    total = json_data.get("total", 0)
+# def fetch_all_notices(per_page=160):
+#     notices = []
 
-    total_pages = (total + per_page - 1) // per_page
+#     response = requests.get(
+#         BASE_URL,
+#         params={"page": 1, "resultPerPage": per_page},
+#         impersonate="chrome120"
+#     )
+#     if response.status_code != 200:
+#         raise RuntimeError("Cannot fetch first page")
 
-    for page in range(2, total_pages + 1):
-        response = requests.get(
-            BASE_URL,
-            params={"page": page, "resultPerPage": per_page},
-            impersonate="chrome120"
-        )
-        if response.status_code != 200:
-            continue
+#     json_data = response.json()
+#     notices.extend(json_data.get("_embedded", {}).get("notices", []))
+#     total = json_data.get("total", 0)
 
-        json_data = response.json()
-        notices.extend(json_data.get("_embedded", {}).get("notices", []))
+#     total_pages = (total + per_page - 1) // per_page
 
-    return notices
+#     for page in range(2, total_pages + 1):
+#         response = requests.get(
+#             BASE_URL,
+#             params={"page": page, "resultPerPage": per_page},
+#             impersonate="chrome120"
+#         )
+#         if response.status_code != 200:
+#             continue
 
-def fetch_notice_details(notices):
-    dead_requests = 0
-    for notice in notices:
-        link = notice.get("_links", {}).get("self", {}).get("href")
-        if not link:
-            continue
+#         json_data = response.json()
+#         notices.extend(json_data.get("_embedded", {}).get("notices", []))
 
-        response = requests.get(link, impersonate="chrome120")
-        if response.status_code != 200:
-            dead_requests += 1
-            continue
+#     return notices
 
-        notice_details = response.json()
-        Data.data.append(notice_details)
+# def fetch_notice_details(notices):
+#     dead_requests = 0
+#     for notice in notices:
+#         link = notice.get("_links", {}).get("self", {}).get("href")
+#         if not link:
+#             continue
 
-        pprint.pprint({
-            "name": notice_details.get("forename"),
-            "entity_id": notice_details.get("entity_id"),
-            "link": link
-        })
-    print(f"Dead requests: {dead_requests}")
+#         response = requests.get(link, impersonate="chrome120")
+#         if response.status_code != 200:
+#             dead_requests += 1
+#             continue
 
-if needs_refresh():
-    notices = fetch_all_notices()
-    fetch_notice_details(notices)
-    save_data()
+#         notice_details = response.json()
+#         Data.data.append(notice_details)
+
+#         pprint.pprint({
+#             "name": notice_details.get("forename"),
+#             "entity_id": notice_details.get("entity_id"),
+#             "link": link
+#         })
+#     print(f"Dead requests: {dead_requests}")
+
+# if needs_refresh():
+#     notices = fetch_all_notices()
+#     fetch_notice_details(notices)
+#     save_data()
