@@ -3,7 +3,10 @@ import numpy as np
 
 from api import Data
 from pprint import pprint
+
 from collections import Counter
+import geopandas as gpd
+
 
 # def unwrap(keyword):
 #     global d
@@ -32,28 +35,45 @@ class Plot():
     def __init__(self):
         self.data = Data.get_data()
 
-    def make_example_plot(x_axis_title = "undefined"):
-        fig, ax = plt.subplots()
-        ax.plot([1,2,3,None], [10, 3, 6, 9], marker="o")
-        ax.set_title(f"Plot of {x_axis_title}")
-        ax.set_xlabel(x_axis_title)
-        ax.set_ylabel("Criminals")
+    def make_world_map(self):
+        # Collect ISO-2 country codes
+        values = []
+        for entry in self.data:
+            nat = entry.get("nationalities")
+            if nat in (None, 0):
+                continue
+            if isinstance(nat, list):
+                values.extend(nat)
+            else:
+                values.append(nat)
+
+        counts = Counter(values)
+
+        # Load Natural Earth countries
+        world = gpd.read_file(
+            "data/ne_110m_admin_0_countries/ne_110m_admin_0_countries.shp"
+        )
+
+        # IMPORTANT: use ISO_A2 directly
+        world["count"] = world["ISO_A2"].map(counts).fillna(0)
+
+        # Plot
+        fig, ax = plt.subplots(figsize=(14, 8))
+        world.plot(
+            column="count",
+            ax=ax,
+            cmap="Reds",
+            legend=True,
+            legend_kwds={"label": "Number of criminals"},
+            missing_kwds={"color": "#2b2b2b"}
+        )
+
+        ax.set_title("Criminal nationality distribution (world map)")
+        ax.axis("off")
+
+        fig.tight_layout()
         return fig
-    
-    # def make_histogram(self, params = "nationalities"):
-    #     nationalities = []
-    #     for entries in self.data:
-    #         if entries[params] == None or entries[params] == 0:
-    #             continue
-    #         # nationalities.append(entries[params])
-    #         smart_add(nationalities, entries[params])
-    #     # ages = unwrap("ages")
-    #     fig, ax = plt.subplots()
-    #     ax.hist(nationalities)
-    #     ax.set_title("Histogram")
-    #     ax.set_xlabel(params.capitalize())
-    #     ax.set_ylabel("Density of criminals")
-    #     return fig
+
 
     def make_histogram(self, selected):
         params = dropdown_to_hist[selected]
@@ -88,7 +108,6 @@ class Plot():
             ax.tick_params(axis='x', rotation=45)
             ax.set_ylabel("Count")
 
-        selected
         ax.set_title(f"{selected} distribution over criminals")
         ax.set_xlabel(selected)
 

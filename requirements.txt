@@ -1,3 +1,5 @@
 matplotlib==3.10.7
 curl_cffi==0.14.0
 numpy==2.3.5
+geopandas==1.0.1
+pycountry==24.6.1

@@ -13,6 +13,8 @@ class App(tk.Tk):
         self.resizable(False, False)
         self.title("Criminality Visualisation")
 
+        self.plot = Plot()
+
         self.top_bar = tk.Frame(self, bg="#2b2b2b", height=120)
         self.top_bar.pack(fill="x", side="top")
         self.top_bar.pack_propagate(False)
@@ -109,9 +111,9 @@ class App(tk.Tk):
         self.clear_plot()
         self.bottom_bar.pack(side="bottom", fill="x")
 
-        plot = Plot()
+
         selected = self.hist_option.get()
-        fig = plot.make_histogram(selected)
+        fig = self.plot.make_histogram(selected)
 
         canvas = FigureCanvasTkAgg(fig, master=self.plot_frame)
         canvas.draw()
@@ -121,12 +123,11 @@ class App(tk.Tk):
         self.clear_plot()
         self.bottom_bar.pack_forget()
 
-        label = ttk.Label(
-            self.plot_frame,
-            text="WORLD GRAPH GOES HERE",
-            font=("Segoe UI", 18)
-        )
-        label.pack(expand=True)
+        fig = self.plot.make_world_map()
+
+        canvas = FigureCanvasTkAgg(fig, master=self.plot_frame)
+        canvas.draw()
+        canvas.get_tk_widget().pack(fill="both", expand=True)
 
     def show_hist_menu(self):
         x = self.hist_dropdown_btn.winfo_rootx()
