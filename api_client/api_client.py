@@ -3,8 +3,6 @@ import json
 import os
 import pprint
 
-
-
 class Data:
     _data = None
     DATA_FILE = "api_client/data_file.json"
