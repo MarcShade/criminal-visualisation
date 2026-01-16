@@ -10,7 +10,6 @@ class App(tk.Tk):
         super().__init__()
 
         self.geometry("1000x1000")
-        self.resizable(False, False)
         self.title("Criminality Visualisation")
 
         self.plot = Plot()

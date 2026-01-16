@@ -36,7 +36,6 @@ class Plot():
         self.data = Data.get_data()
 
     def make_world_map(self):
-        # Collect ISO-2 country codes
         values = []
         for entry in self.data:
             nat = entry.get("nationalities")
@@ -49,31 +48,29 @@ class Plot():
 
         counts = Counter(values)
 
-        # Load Natural Earth countries
         world = gpd.read_file(
             "data/ne_110m_admin_0_countries/ne_110m_admin_0_countries.shp"
         )
 
-        # IMPORTANT: use ISO_A2 directly
         world["count"] = world["ISO_A2"].map(counts).fillna(0)
 
-        # Plot
-        fig, ax = plt.subplots(figsize=(14, 8))
+        world = world.to_crs("ESRI:54042")
+
+        fig, ax = plt.subplots()
         world.plot(
             column="count",
             ax=ax,
             cmap="Reds",
             legend=True,
-            legend_kwds={"label": "Number of criminals"},
+            legend_kwds={'orientation': 'horizontal', "label": "Number of criminals", "pad": 0},
             missing_kwds={"color": "#2b2b2b"}
         )
-
+        
         ax.set_title("Criminal nationality distribution (world map)")
         ax.axis("off")
 
         fig.tight_layout()
         return fig
-
 
     def make_histogram(self, selected):
         params = dropdown_to_hist[selected]
@@ -85,7 +82,6 @@ class Plot():
             if val in (None, 0):
                 continue
 
-            # If the value is a list (e.g. languages_spoken_ids)
             if isinstance(val, list):
                 for item in val:
                     if item not in (None, 0):
@@ -93,7 +89,6 @@ class Plot():
             else:
                 values.append(val)
 
-        # Decide plot type
         if all(isinstance(v, (int, float)) for v in values):
             fig, ax = plt.subplots()
             ax.hist(values, bins=20)
