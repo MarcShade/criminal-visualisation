@@ -88,7 +88,6 @@ class Plot():
         if all(isinstance(v, (int, float)) for v in values):
             fig, ax = plt.subplots()
             ax.hist(values, bins=20)
-            ax.set_ylabel("Frequency")
 
         else:
             counts = Counter(values).most_common()
@@ -97,10 +96,11 @@ class Plot():
             fig, ax = plt.subplots(figsize=(10, 5))
             ax.bar(labels, freqs)
             ax.tick_params(axis='x', rotation=45)
-            ax.set_ylabel("Count")
 
         ax.set_title(f"{selected} distribution over criminals")
         ax.set_xlabel(selected)
+        ax.set_ylabel("Count")
+
 
         fig.tight_layout()
         return fig
