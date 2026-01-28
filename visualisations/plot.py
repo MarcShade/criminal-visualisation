@@ -7,14 +7,6 @@ from pprint import pprint
 from collections import Counter
 import geopandas as gpd
 
-
-# def unwrap(keyword):
-#     global d
-#     with open("api_client/data_file.json") as json_data:
-#         d = json.loads(json_data.read())
-#         json_data.close()
-#         pprint(d.get("total"))
-
 dropdown_to_hist = {
     "Weight": "weight",
     "Nationality": "nationalities",
@@ -33,6 +25,10 @@ def smart_add(lst, x):
 
 class Plot():
     def __init__(self):
+        if Data.needs_refresh():
+            notices = Data.fetch_all_notices()
+            Data.fetch_notice_details(notices)
+            Data.save_data()
         self.data = Data.get_data()
 
     def make_world_map(self):

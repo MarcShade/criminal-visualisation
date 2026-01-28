@@ -98,7 +98,6 @@ class App(tk.Tk):
                 command=lambda v=option: self.set_hist_option(v)
             )
 
-
         self.show_histogram()
         self.mainloop()
 
